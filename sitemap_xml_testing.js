@@ -8,35 +8,35 @@ var fs = require('fs');
 var sitemap = casper.cli.get("sitemap");
 var logfile = casper.cli.get("logfile");
 
-function getLinks() {
+function getLinks() { //XML URL parser. All sitemap.xml files compliant with the standard specification for them will work with this function
     var links = document.querySelectorAll('loc');
     return Array.prototype.map.call(links, function(e) {
         return e.textContent
     });
 }
 
-function getInteriorLinks() {
+function getInteriorLinks() { //Returns href values
     var intlinks = document.querySelectorAll('a');
     return Array.prototype.map.call(intlinks, function(e) {
         return e.getAttribute('href')
     });
 }
 
-function getInteriorImages() {
+function getInteriorImages() { //Returns all images on a page, regardless of type
     var intimages = document.querySelectorAll('img');
     return Array.prototype.map.call(intimages, function(e) {
         return e.getAttribute('src')
     });
 }
 
-function getInteriorMeta() {
+function getInteriorMeta() { //Returns meta information, including CSS
     var intcss = document.querySelectorAll('link');
     return Array.prototype.map.call(intcss, function(e) {
         return e.getAttribute('href')
     });
 }
 
-function getInteriorScript() {
+function getInteriorScript() { //Returns javascript file locations
     var intjs = document.querySelectorAll('script');
     return Array.prototype.map.call(intjs, function(e) {
         return e.getAttribute('src')
@@ -49,7 +49,6 @@ casper.on('http.status.100', function(resource) {
 casper.on('http.status.200', function(resource) {
     this.echo('200 OK ' + resource.url);
 });
-
 casper.on('http.status.300', function(resource) {
     this.echo('300 Multiple Choices ' + resource.url);
 });
@@ -61,38 +60,38 @@ casper.on('http.status.302', function(resource) {
 });
 casper.on('http.status.400', function(resource) {
     this.echo('400 Bad Request ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 400\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 400\n', 'a'); 
 });
 casper.on('http.status.401', function(resource) {
     this.echo('401 Unauthorized ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 401\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 401\n', 'a'); 
 });
 casper.on('http.status.403', function(resource) {
     this.echo('403 Forbidden ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 403\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 403\n', 'a'); 
 });
 casper.on('http.status.404', function(resource) {
     this.echo('404 Not Found ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 404\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 404\n', 'a'); 
 });
 casper.on('http.status.500', function(resource) {
     this.echo('500 Internal Server Error ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 500\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 500\n', 'a'); 
 });
 casper.on('http.status.502', function(resource) {
     this.echo('502 Bad Gateway ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 502\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 502\n', 'a'); 
 });
 casper.on('http.status.503', function(resource) {
     this.echo('503 Service Unavailable ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 503\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 503\n', 'a'); 
 });
 casper.on('http.status.504', function(resource) {
     this.echo('504 Gateway Timeout ' + resource.url);
-    fs.write(logfile, resource.url + 'returned a 504\n', 'a'); 
+    fs.write(logfile, resource.url + ' returned a 504\n', 'a'); 
 });
 
-casper.on("page.error", function(msg, trace) {
+casper.on("page.error", function(msg, trace) { //Logging JavaScript errors on a page
   this.echo("Error:    " + msg, "ERROR");
   fs.write(logfile, "Error:    " + msg + "\n", 'a'); 
   if (trace[0].file){
@@ -108,20 +107,19 @@ casper.on("page.error", function(msg, trace) {
     }
   fs.write(logfile, "function: " + trace[0]["function"] + "\n", 'a'); 
   msg = 0;
-  trace = [];
+  trace = []; //Workaround for what I think might be a memory issue
 });
 
 
 casper.start(sitemap, function() {
-    this.echo(logfile);
-    fs.write(logfile, 'Starting crawl...\n', 'w'); 
+    fs.write(logfile, 'Starting crawl...\n', 'w'); //Initializes writing to file
     links = this.evaluate(getLinks);
 });
 
-casper.then(function() {
+casper.then(function() { //Main asynchronous function
     console.log('------------------------------'); 
-	for (var i = 0; i < links.length; i++) {
-	    casper.thenOpen(links[i], function() {
+	for (var i = 0; i < links.length; i++) { 
+        casper.thenOpen(links[i], function() {
 	    	intlinks = this.evaluate(getInteriorLinks);
 	    	intimages = this.evaluate(getInteriorImages);
 	    	intcss = this.evaluate(getInteriorMeta); 
