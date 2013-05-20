@@ -149,7 +149,7 @@ casper.then(function() { //Main asynchronous function
 			intcss = [];
 			intimages = [];
 			intlinks = [];
-            
+            this.clear();
 		});
 	}
 });
