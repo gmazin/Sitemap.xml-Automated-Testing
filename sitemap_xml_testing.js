@@ -94,18 +94,19 @@ casper.on('http.status.504', function(resource) {
 casper.on("page.error", function(msg, trace) { //Logging JavaScript errors on a page
   this.echo("Error:    " + msg, "ERROR");
   fs.write(logfile, "Error:    " + msg + "\n", 'a'); 
+  //Uncomment below for more verbose output to file
   if (trace[0].file){
     this.echo("file:     " + trace[0].file, "WARNING");
   }
   if (trace[0].line){
-  fs.write(logfile, "file:     " + trace[0].file + "\n", 'a'); 
+  //fs.write(logfile, "file:     " + trace[0].file + "\n", 'a'); 
     this.echo("line:     " + trace[0].line, "WARNING");
   }
   if (trace[0]["function"]){
-    fs.write(logfile, "line:     " + trace[0].line + "\n", 'a'); 
+    //fs.write(logfile, "line:     " + trace[0].line + "\n", 'a'); 
         this.echo("function: " + trace[0]["function"], "WARNING");
     }
-  fs.write(logfile, "function: " + trace[0]["function"] + "\n", 'a'); 
+  //fs.write(logfile, "function: " + trace[0]["function"] + "\n", 'a'); 
   msg = 0;
   trace = []; //Workaround for what I think might be a memory issue
 });
@@ -126,25 +127,33 @@ casper.then(function() { //Main asynchronous function
 	    	intjs = this.evaluate(getInteriorScript); 
             this.echo('------------------------------');
 	    	console.log('--Iterating through ' + this.getCurrentUrl() + '--'); 
-            fs.write(logfile, '--Iterating through ' + this.getCurrentUrl() + '--\n', 'a'); 
+            fs.write(logfile, '-Iterating through ' + this.getCurrentUrl() + '\n', 'a'); 
             this.echo('------------------------------');
-			for (var j = 0; j < intlinks.length; j++) {
-	    		casper.thenOpen(intlinks[j], function() {
-				});
-			}
-			for (var k = 0; k < intimages.length; k++) {
-	    		casper.thenOpen(intimages[k], function() {
-				});
-			}
-			for (var l = 0; l < intcss.length; l++) {
-	    		casper.thenOpen(intcss[l], function() {
-				});
-			}
-			for (var m = 0; m < intjs.length; m++) {
-	    		casper.thenOpen(intjs[m], function() {
+			if (intlinks.length>0){
+                for (var j = 0; j < intlinks.length; j++) {
+    	    		casper.thenOpen(intlinks[j], function() {
+    				});
+    			}
+            }
+            if (intimages.length>0){
+    			for (var k = 0; k < intimages.length; k++) {
+    	    		casper.thenOpen(intimages[k], function() {
+    				});
+    			}
+            }
+            if (intcss.length>0){
+    			for (var l = 0; l < intcss.length; l++) {
+    	    		casper.thenOpen(intcss[l], function() {
+    				});
+    			}
+            }
+            if (intjs.length>0){
+    			for (var m = 0; m < intjs.length; m++) {
+    	    		casper.thenOpen(intjs[m], function() {
 
-				});
-			}
+    				});
+    			}
+            }
 			intjs = []; 
 			intcss = [];
 			intimages = [];
