@@ -94,21 +94,20 @@ casper.on('http.status.504', function(resource) {
 casper.on("page.error", function(msg, trace) { //Logging JavaScript errors on a page
   this.echo("Error:    " + msg, "ERROR");
   fs.write(logfile, "Error:    " + msg + "\n", 'a'); 
-  //Uncomment below for more verbose output to file
   if (trace[0].file){
     this.echo("file:     " + trace[0].file, "WARNING");
+    fs.write(logfile, "file:     " + trace[0].file + "\n", 'a'); 
   }
   if (trace[0].line){
-  //fs.write(logfile, "file:     " + trace[0].file + "\n", 'a'); 
+    fs.write(logfile, "line:     " + trace[0].line + "\n", 'a'); 
     this.echo("line:     " + trace[0].line, "WARNING");
   }
   if (trace[0]["function"]){
-    //fs.write(logfile, "line:     " + trace[0].line + "\n", 'a'); 
+        fs.write(logfile, "function: " + trace[0]["function"] + "\n", 'a'); 
         this.echo("function: " + trace[0]["function"], "WARNING");
     }
-  //fs.write(logfile, "function: " + trace[0]["function"] + "\n", 'a'); 
   msg = 0;
-  trace = []; //Workaround for what I think might be a memory issue
+  trace = []; //Workaround for what I think might be a memory issue, might not be necessary as of Phantom 1.8
 });
 
 
@@ -149,9 +148,9 @@ casper.then(function() { //Main asynchronous function
             }
             if (intjs.length>0){
     			for (var m = 0; m < intjs.length; m++) {
-    	    		casper.thenOpen(intjs[m], function() {
-
-    				});
+                    if ((intjs[m].indexOf('ga.js') == -1) && (intjs[m].indexOf('analytics.js') == -1) && (intjs[m].indexOf('urchin.js') == -1)) { //To avoid hitting Google Analytics
+    	    		    casper.thenOpen(intjs[m], function() {});
+                    }
     			}
             }
 			intjs = []; 
