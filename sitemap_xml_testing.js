@@ -116,6 +116,8 @@ casper.start(sitemap, function() {
     links = this.evaluate(getLinks);
 });
 
+casper.userAgent('Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)');
+
 casper.then(function() { //Main asynchronous function
     console.log('------------------------------'); 
 	for (var i = 0; i < links.length; i++) { 
